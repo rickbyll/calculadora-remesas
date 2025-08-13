@@ -3,218 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Remesas a Cuba</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .container {
-            max-width: 600px;
-        }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-    </style>
+    <title>Calculadora Zelle a Cuba</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="container bg-white p-8 rounded-2xl shadow-xl w-full">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Calculadora de Remesas a Cuba</h1>
-        <p class="text-center text-gray-600 mb-8">Calcula de forma rápida y sencilla la cantidad a enviar por Zelle.</p>
 
-        <div id="config-panel" class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 hidden">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">Configuración de Tasas</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="cup-rate" class="block text-sm font-medium text-gray-700">Tasa de cambio (CUP por USD)</label>
-                    <input type="number" id="cup-rate" value="400" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                </div>
-                <div>
-                    <label for="rate-100" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir < $100</label>
-                    <input type="number" id="rate-100" value="10" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                </div>
-                <div>
-                    <label for="rate-500" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir entre $100 y $500</label>
-                    <input type="number" id="rate-500" value="5" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                </div>
-                <div>
-                    <label for="rate-plus500" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir > $500</label>
-                    <input type="number" id="rate-plus500" value="3" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                </div>
-            </div>
-            <p class="mt-4 text-sm text-gray-500">
-                Estas comisiones se aplican sobre la cantidad que desea que reciba el cliente.
-            </p>
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Calculadora Zelle a Cuba</h1>
+
+        <div class="mb-4">
+            <label for="amountToSend" class="block text-gray-700 font-semibold mb-2">Dinero a enviar (USD)</label>
+            <input type="number" id="amountToSend" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="mb-6 flex justify-center">
-            <button id="toggle-config" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-200">
-                Mostrar/Ocultar Configuración
+        <div class="mb-6">
+            <label for="amountToReceive" class="block text-gray-700 font-semibold mb-2">Dinero a recibir (USD)</label>
+            <input type="number" id="amountToReceive" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="mb-6 bg-blue-100 p-4 rounded-lg text-center">
+            <p class="text-lg font-semibold text-blue-800">Recibirás en Cuba:</p>
+            <p id="cupResult" class="text-4xl font-bold text-blue-900 mt-2">0.00 CUP</p>
+        </div>
+
+        <div class="text-center mt-6">
+            <button id="settingsBtn" class="text-gray-500 hover:text-gray-700 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Configuración
             </button>
-        </div>
-
-        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">Calcular Remesa</h2>
-            <div class="space-y-6">
-                <div>
-                    <label for="zelle-amount" class="block text-sm font-medium text-gray-700">Cantidad a enviar por Zelle (USD)</label>
-                    <input type="number" id="zelle-amount" placeholder="Ej: 200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                    <p class="text-sm text-gray-500 mt-1">El monto que pagas en EE.UU.</p>
-                </div>
-                <div class="text-center text-gray-500 font-semibold my-4">O</div>
-                <div>
-                    <label for="receive-amount" class="block text-sm font-medium text-gray-700">Cantidad que desea que reciban en Cuba (USD)</label>
-                    <input type="number" id="receive-amount" placeholder="Ej: 180" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                    <p class="text-sm text-gray-500 mt-1">El monto final que quieres que llegue.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-8 bg-indigo-50 p-6 rounded-2xl border border-indigo-200">
-            <h2 class="text-xl font-semibold mb-4 text-indigo-800">Resultados del Cálculo</h2>
-            <div id="results" class="space-y-4">
-                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-                    <span class="text-sm font-medium text-gray-700">Cantidad a pagar por Zelle:</span>
-                    <span id="result-zelle" class="font-bold text-lg text-indigo-600">$0.00</span>
-                </div>
-                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-                    <span class="text-sm font-medium text-gray-700">Comisión aplicada:</span>
-                    <span id="result-fee" class="font-bold text-lg text-red-600">$0.00</span>
-                </div>
-                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-                    <span class="text-sm font-medium text-gray-700">Cantidad que recibirá en Cuba:</span>
-                    <span id="result-receive-usd" class="font-bold text-lg text-green-600">$0.00 USD</span>
-                </div>
-                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-                    <span class="text-sm font-medium text-gray-700">Cantidad en CUP (efectivo/transferencia):</span>
-                    <span id="result-cup" class="font-bold text-lg text-green-600">0.00 CUP</span>
-                </div>
-            </div>
-            <div id="message-box" class="mt-4 text-center text-sm font-medium text-red-600 hidden"></div>
         </div>
     </div>
 
-    <script>
-        // Función para obtener los valores de las tasas desde los inputs
-        function getRates() {
-            return {
-                cup: parseFloat(document.getElementById('cup-rate').value),
-                rate100: parseFloat(document.getElementById('rate-100').value) / 100,
-                rate500: parseFloat(document.getElementById('rate-500').value) / 100,
-                ratePlus500: parseFloat(document.getElementById('rate-plus500').value) / 100
-            };
-        }
+    <div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Configuración de Tarifas</h2>
+            <div class="mb-4">
+                <label for="usdToCupRate" class="block text-gray-700 font-semibold">Tasa de cambio (1 USD a CUP)</label>
+                <input type="number" id="usdToCupRate" class="w-full p-2 border border-gray-300 rounded mt-1">
+            </div>
+            <div class="mb-4">
+                <label for="rate100" class="block text-gray-700 font-semibold">Tarifa para < 100 USD (%)</label>
+                <input type="number" id="rate100" class="w-full p-2 border border-gray-300 rounded mt-1">
+            </div>
+            <div class="mb-4">
+                <label for="rate500" class="block text-gray-700 font-semibold">Tarifa para 100-500 USD (%)</label>
+                <input type="number" id="rate500" class="w-full p-2 border border-gray-300 rounded mt-1">
+            </div>
+            <div class="mb-4">
+                <label for="rate500Plus" class="block text-gray-700 font-semibold">Tarifa para > 500 USD (%)</label>
+                <input type="number" id="rate500Plus" class="w-full p-2 border border-gray-300 rounded mt-1">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button id="closeModalBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">Cerrar</button>
+                <button id="saveSettingsBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Guardar</button>
+            </div>
+        </div>
+    </div>
 
-        // Función para obtener el porcentaje de comisión
-        function getFeeRate(amount, rates) {
-            if (amount < 100) {
-                return rates.rate100;
-            } else if (amount >= 100 && amount <= 500) {
-                return rates.rate500;
-            } else {
-                return rates.ratePlus500;
-            }
-        }
-
-        // Función para actualizar la interfaz con los resultados
-        function updateResults(zelleAmount, fee, receiveAmount, rates) {
-            document.getElementById('result-zelle').innerText = `$${zelleAmount.toFixed(2)}`;
-            document.getElementById('result-fee').innerText = `$${fee.toFixed(2)}`;
-            document.getElementById('result-receive-usd').innerText = `$${receiveAmount.toFixed(2)} USD`;
-            document.getElementById('result-cup').innerText = `${(receiveAmount * rates.cup).toFixed(2)} CUP`;
-        }
-
-        // Escuchar cambios en la cantidad de Zelle
-        document.getElementById('zelle-amount').addEventListener('input', (event) => {
-            const zelleInput = event.target;
-            const receiveInput = document.getElementById('receive-amount');
-            const rates = getRates();
-            const zelleAmount = parseFloat(zelleInput.value);
-
-            if (isNaN(zelleAmount) || zelleAmount <= 0) {
-                clearResults();
-                return;
-            }
-
-            // Deshabilitar el otro campo mientras se usa este
-            receiveInput.value = '';
-            
-            // Lógica inversa: encontrar el monto a recibir
-            let receiveAmount = zelleAmount / (1 + getFeeRate(zelleAmount, rates));
-            let fee = zelleAmount - receiveAmount;
-            
-            updateResults(zelleAmount, fee, receiveAmount, rates);
-        });
-
-        // Escuchar cambios en la cantidad a recibir
-        document.getElementById('receive-amount').addEventListener('input', (event) => {
-            const receiveInput = event.target;
-            const zelleInput = document.getElementById('zelle-amount');
-            const rates = getRates();
-            const receiveAmount = parseFloat(receiveInput.value);
-
-            if (isNaN(receiveAmount) || receiveAmount <= 0) {
-                clearResults();
-                return;
-            }
-
-            // Deshabilitar el otro campo mientras se usa este
-            zelleInput.value = '';
-
-            const feeRate = getFeeRate(receiveAmount, rates);
-            const fee = receiveAmount * feeRate;
-            const zelleAmount = receiveAmount + fee;
-            
-            updateResults(zelleAmount, fee, receiveAmount, rates);
-        });
-        
-        // Escuchar cambios en las tasas de configuración
-        const configInputs = document.querySelectorAll('#config-panel input[type="number"]');
-        configInputs.forEach(input => {
-            input.addEventListener('input', () => {
-                const zelleAmount = parseFloat(document.getElementById('zelle-amount').value);
-                const receiveAmount = parseFloat(document.getElementById('receive-amount').value);
-                const rates = getRates();
-
-                if (!isNaN(zelleAmount) && zelleAmount > 0) {
-                    const newReceiveAmount = zelleAmount / (1 + getFeeRate(zelleAmount, rates));
-                    const newFee = zelleAmount - newReceiveAmount;
-                    updateResults(zelleAmount, newFee, newReceiveAmount, rates);
-                } else if (!isNaN(receiveAmount) && receiveAmount > 0) {
-                    const feeRate = getFeeRate(receiveAmount, rates);
-                    const newFee = receiveAmount * feeRate;
-                    const newZelleAmount = receiveAmount + newFee;
-                    updateResults(newZelleAmount, newFee, receiveAmount, rates);
-                } else {
-                    clearResults();
-                }
-            });
-        });
-
-        // Limpiar los resultados
-        function clearResults() {
-            document.getElementById('result-zelle').innerText = '$0.00';
-            document.getElementById('result-fee').innerText = '$0.00';
-            document.getElementById('result-receive-usd').innerText = '$0.00 USD';
-            document.getElementById('result-cup').innerText = '0.00 CUP';
-        }
-
-        // Funcionalidad para mostrar/ocultar el panel de configuración
-        document.getElementById('toggle-config').addEventListener('click', () => {
-            const configPanel = document.getElementById('config-panel');
-            configPanel.classList.toggle('hidden');
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
-
-                        
