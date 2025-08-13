@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usdToCupRateInput = document.getElementById('usdToCupRate');
     const rate100Input = document.getElementById('rate100');
     const rate500Input = document.getElementById('rate500');
-    const rate500PlusInput = document.getElementById('rate500Plus');
+    const rate500PlusInput = document = document.getElementById('rate500Plus');
     
     // Nuevos botones de modo
     const sendModeBtn = document.getElementById('sendModeBtn');
@@ -52,16 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para obtener la tarifa correcta
-function getFeePercentage(amount) {
-    if (amount < 100) {
-        return currentRates.rate100 / 100;
-    } else if (amount >= 100 && amount < 500) { // <-- Se cambió de <= a <
-        return currentRates.rate500 / 100;
-    } else { // Esto ahora cubre los montos de 500 o más
-        return currentRates.rate500Plus / 100;
+    function getFeePercentage(amount) {
+        if (amount < 100) {
+            return currentRates.rate100 / 100;
+        } else if (amount >= 100 && amount < 500) {
+            return currentRates.rate500 / 100;
+        } else if (amount >= 500) {
+            return currentRates.rate500Plus / 100;
+        }
     }
-}
-    
 
     // Función principal de cálculo
     function calculate() {
@@ -73,9 +72,8 @@ function getFeePercentage(amount) {
                 return;
             }
 
-            // Cálculo corregido para evitar la iteración
-            const estimatedReceive = amountToSend / (1 + getFeePercentage(amountToSend));
-            const feePercentage = getFeePercentage(estimatedReceive);
+            // Cálculo para "enviar"
+            const feePercentage = getFeePercentage(amountToSend / 1.05); // Se usa una estimación inicial para el cálculo
             const amountToReceive = amountToSend / (1 + feePercentage);
 
             amountToReceiveEl.value = amountToReceive.toFixed(2);
@@ -88,6 +86,7 @@ function getFeePercentage(amount) {
                 cupResultEl.textContent = '0.00 CUP';
                 return;
             }
+            // Cálculo para "recibir"
             const feePercentage = getFeePercentage(amountToReceive);
             const amountToSend = amountToReceive * (1 + feePercentage);
             amountToSendEl.value = amountToSend.toFixed(2);
@@ -102,6 +101,7 @@ function getFeePercentage(amount) {
             amountToSendEl.disabled = false;
             amountToReceiveEl.disabled = true;
             amountToReceiveEl.value = '';
+            amountToSendEl.value = '';
             sendModeBtn.classList.add('bg-blue-600', 'text-white');
             sendModeBtn.classList.remove('bg-gray-200', 'text-gray-700');
             receiveModeBtn.classList.remove('bg-blue-600', 'text-white');
@@ -111,6 +111,7 @@ function getFeePercentage(amount) {
             amountToSendEl.disabled = true;
             amountToReceiveEl.disabled = false;
             amountToSendEl.value = '';
+            amountToReceiveEl.value = '';
             receiveModeBtn.classList.add('bg-blue-600', 'text-white');
             receiveModeBtn.classList.remove('bg-gray-200', 'text-gray-700');
             sendModeBtn.classList.remove('bg-blue-600', 'text-white');
@@ -142,7 +143,7 @@ function getFeePercentage(amount) {
         settingsModal.classList.add('hidden');
         settingsModal.classList.remove('flex');
     });
-
+    
     // Cargar la configuración y establecer el modo inicial
     loadSettings();
     setMode('send');
