@@ -52,15 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para obtener la tarifa correcta
-    function getFeePercentage(amount) {
-        if (amount < 100) {
-            return currentRates.rate100 / 100;
-        } else if (amount >= 100 && amount <= 500) {
-            return currentRates.rate500 / 100;
-        } else {
-            return currentRates.rate500Plus / 100;
-        }
+function getFeePercentage(amount) {
+    if (amount < 100) {
+        return currentRates.rate100 / 100;
+    } else if (amount >= 100 && amount < 500) { // <-- Se cambió de <= a <
+        return currentRates.rate500 / 100;
+    } else { // Esto ahora cubre los montos de 500 o más
+        return currentRates.rate500Plus / 100;
     }
+}
+    
 
     // Función principal de cálculo
     function calculate() {
