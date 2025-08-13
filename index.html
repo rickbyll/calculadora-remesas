@@ -31,7 +31,6 @@
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Calculadora de Remesas a Cuba</h1>
         <p class="text-center text-gray-600 mb-8">Calcula de forma rápida y sencilla la cantidad a enviar por Zelle.</p>
 
-        <!-- Sección de configuración (oculta por defecto) -->
         <div id="config-panel" class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 hidden">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Configuración de Tasas</h2>
             <div class="space-y-4">
@@ -40,20 +39,20 @@
                     <input type="number" id="cup-rate" value="400" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
                 <div>
-                    <label for="rate-100" class="block text-sm font-medium text-gray-700">Comisión para montos < $100</label>
+                    <label for="rate-100" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir < $100</label>
                     <input type="number" id="rate-100" value="10" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
                 <div>
-                    <label for="rate-500" class="block text-sm font-medium text-gray-700">Comisión para montos entre $100 y $500</label>
+                    <label for="rate-500" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir entre $100 y $500</label>
                     <input type="number" id="rate-500" value="5" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
                 <div>
-                    <label for="rate-plus500" class="block text-sm font-medium text-gray-700">Comisión para montos > $500</label>
+                    <label for="rate-plus500" class="block text-sm font-medium text-gray-700">Comisión para montos a recibir > $500</label>
                     <input type="number" id="rate-plus500" value="3" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
             </div>
             <p class="mt-4 text-sm text-gray-500">
-                Estas comisiones se aplican sobre la cantidad total en USD.
+                Estas comisiones se aplican sobre la cantidad que desea que reciba el cliente.
             </p>
         </div>
 
@@ -63,18 +62,15 @@
             </button>
         </div>
 
-        <!-- Opciones de cálculo -->
         <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Calcular Remesa</h2>
             <div class="space-y-6">
-                <!-- Calcular USD a recibir -->
                 <div>
                     <label for="zelle-amount" class="block text-sm font-medium text-gray-700">Cantidad a enviar por Zelle (USD)</label>
                     <input type="number" id="zelle-amount" placeholder="Ej: 200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                     <p class="text-sm text-gray-500 mt-1">El monto que pagas en EE.UU.</p>
                 </div>
                 <div class="text-center text-gray-500 font-semibold my-4">O</div>
-                <!-- Calcular Zelle a pagar -->
                 <div>
                     <label for="receive-amount" class="block text-sm font-medium text-gray-700">Cantidad que desea que reciban en Cuba (USD)</label>
                     <input type="number" id="receive-amount" placeholder="Ej: 180" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
@@ -83,7 +79,6 @@
             </div>
         </div>
 
-        <!-- Sección de resultados -->
         <div class="mt-8 bg-indigo-50 p-6 rounded-2xl border border-indigo-200">
             <h2 class="text-xl font-semibold mb-4 text-indigo-800">Resultados del Cálculo</h2>
             <div id="results" class="space-y-4">
@@ -119,37 +114,15 @@
             };
         }
 
-        // Función para calcular la comisión
-        function calculateFee(amount, rates) {
+        // Función para obtener el porcentaje de comisión
+        function getFeeRate(amount, rates) {
             if (amount < 100) {
-                return amount * rates.rate100;
+                return rates.rate100;
             } else if (amount >= 100 && amount <= 500) {
-                return amount * rates.rate500;
+                return rates.rate500;
             } else {
-                return amount * rates.ratePlus500;
+                return rates.ratePlus500;
             }
-        }
-
-        // Función para calcular la cantidad a pagar por Zelle
-        function calculateZelleAmount(receiveAmount, rates) {
-            let zelleAmount = receiveAmount;
-            let fee = 0;
-            let iterations = 0;
-            const maxIterations = 10;
-            const tolerance = 0.01;
-
-            // Bucle para ajustar el monto de Zelle de forma iterativa
-            while (iterations < maxIterations) {
-                fee = calculateFee(zelleAmount, rates);
-                const newZelleAmount = (receiveAmount + fee);
-                if (Math.abs(newZelleAmount - zelleAmount) < tolerance) {
-                    zelleAmount = newZelleAmount;
-                    break;
-                }
-                zelleAmount = newZelleAmount;
-                iterations++;
-            }
-            return zelleAmount;
         }
 
         // Función para actualizar la interfaz con los resultados
@@ -175,8 +148,10 @@
             // Deshabilitar el otro campo mientras se usa este
             receiveInput.value = '';
             
-            const fee = calculateFee(zelleAmount, rates);
-            const receiveAmount = zelleAmount - fee;
+            // Lógica inversa: encontrar el monto a recibir
+            let receiveAmount = zelleAmount / (1 + getFeeRate(zelleAmount, rates));
+            let fee = zelleAmount - receiveAmount;
+            
             updateResults(zelleAmount, fee, receiveAmount, rates);
         });
 
@@ -195,8 +170,10 @@
             // Deshabilitar el otro campo mientras se usa este
             zelleInput.value = '';
 
-            const zelleAmount = calculateZelleAmount(receiveAmount, rates);
-            const fee = calculateFee(zelleAmount, rates);
+            const feeRate = getFeeRate(receiveAmount, rates);
+            const fee = receiveAmount * feeRate;
+            const zelleAmount = receiveAmount + fee;
+            
             updateResults(zelleAmount, fee, receiveAmount, rates);
         });
         
@@ -209,13 +186,14 @@
                 const rates = getRates();
 
                 if (!isNaN(zelleAmount) && zelleAmount > 0) {
-                    const fee = calculateFee(zelleAmount, rates);
-                    const newReceiveAmount = zelleAmount - fee;
-                    updateResults(zelleAmount, fee, newReceiveAmount, rates);
+                    const newReceiveAmount = zelleAmount / (1 + getFeeRate(zelleAmount, rates));
+                    const newFee = zelleAmount - newReceiveAmount;
+                    updateResults(zelleAmount, newFee, newReceiveAmount, rates);
                 } else if (!isNaN(receiveAmount) && receiveAmount > 0) {
-                    const newZelleAmount = calculateZelleAmount(receiveAmount, rates);
-                    const fee = calculateFee(newZelleAmount, rates);
-                    updateResults(newZelleAmount, fee, receiveAmount, rates);
+                    const feeRate = getFeeRate(receiveAmount, rates);
+                    const newFee = receiveAmount * feeRate;
+                    const newZelleAmount = receiveAmount + newFee;
+                    updateResults(newZelleAmount, newFee, receiveAmount, rates);
                 } else {
                     clearResults();
                 }
@@ -239,3 +217,4 @@
 </body>
 </html>
 
+                        
