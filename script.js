@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const rate100Input = document.getElementById('rate100');
     const rate500Input = document.getElementById('rate500');
     const rate500PlusInput = document.getElementById('rate500Plus');
+    
+    // Nuevos botones de modo
+    const sendModeBtn = document.getElementById('sendModeBtn');
+    const receiveModeBtn = document.getElementById('receiveModeBtn');
 
     // Tarifas predeterminadas
     const defaultRates = {
@@ -21,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let currentRates = { ...defaultRates };
+    let currentMode = 'send'; // 'send' o 'receive'
 
     // Función para cargar la configuración guardada
     function loadSettings() {
@@ -28,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedRates) {
             currentRates = JSON.parse(savedRates);
         }
-        // Actualizar los inputs del modal con los valores cargados
         usdToCupRateInput.value = currentRates.usdToCup;
         rate100Input.value = currentRates.rate100;
         rate500Input.value = currentRates.rate500;
@@ -60,8 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función principal de cálculo
     function calculate() {
-        // Calcular basado en "Dinero a enviar"
-        if (amountToSendEl.value) {
+        if (currentMode === 'send') {
             const amountToSend = parseFloat(amountToSendEl.value);
             if (isNaN(amountToSend) || amountToSend <= 0) {
                 amountToReceiveEl.value = '';
@@ -69,22 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Para calcular de "enviar" a "recibir", necesitamos una fórmula inversa o iterativa.
-            // Una manera sencilla es adivinar un valor y ajustarlo.
-            let amountToReceive = amountToSend / (1 + getFeePercentage(amountToSend));
-
-            // Refinamiento iterativo para encontrar el valor exacto
-            for(let i = 0; i < 10; i++) {
-                const feePercentage = getFeePercentage(amountToReceive);
-                amountToReceive = amountToSend / (1 + feePercentage);
-            }
+            // Cálculo corregido para evitar la iteración
+            const estimatedReceive = amountToSend / (1 + getFeePercentage(amountToSend));
+            const feePercentage = getFeePercentage(estimatedReceive);
+            const amountToReceive = amountToSend / (1 + feePercentage);
 
             amountToReceiveEl.value = amountToReceive.toFixed(2);
             cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
 
-        } 
-        // Calcular basado en "Dinero a recibir"
-        else if (amountToReceiveEl.value) {
+        } else if (currentMode === 'receive') {
             const amountToReceive = parseFloat(amountToReceiveEl.value);
             if (isNaN(amountToReceive) || amountToReceive <= 0) {
                 amountToSendEl.value = '';
@@ -92,52 +88,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const feePercentage = getFeePercentage(amountToReceive);
-            const amountToSend = amountToReceive + (feePercentage * amountToReceive);
+            const amountToSend = amountToReceive * (1 + feePercentage);
             amountToSendEl.value = amountToSend.toFixed(2);
             cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
-        } else {
-            amountToSendEl.value = '';
-            amountToReceiveEl.value = '';
-            cupResultEl.textContent = '0.00 CUP';
         }
     }
 
-    // Eventos para los campos de entrada
-    amountToSendEl.addEventListener('input', () => {
-        amountToReceiveEl.disabled = true;
-        calculate();
-        if (amountToSendEl.value === '') {
-            amountToReceiveEl.disabled = false;
-        }
-    });
-
-    amountToReceiveEl.addEventListener('input', () => {
-        amountToSendEl.disabled = true;
-        calculate();
-        if (amountToReceiveEl.value === '') {
+    // Función para cambiar el modo de entrada
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'send') {
             amountToSendEl.disabled = false;
+            amountToReceiveEl.disabled = true;
+            amountToReceiveEl.value = '';
+            sendModeBtn.classList.add('bg-blue-600', 'text-white');
+            sendModeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            receiveModeBtn.classList.remove('bg-blue-600', 'text-white');
+            receiveModeBtn.classList.add('bg-gray-200', 'text-gray-700');
+            amountToSendEl.focus();
+        } else {
+            amountToSendEl.disabled = true;
+            amountToReceiveEl.disabled = false;
+            amountToSendEl.value = '';
+            receiveModeBtn.classList.add('bg-blue-600', 'text-white');
+            receiveModeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            sendModeBtn.classList.remove('bg-blue-600', 'text-white');
+            sendModeBtn.classList.add('bg-gray-200', 'text-gray-700');
+            amountToReceiveEl.focus();
         }
-    });
+        cupResultEl.textContent = '0.00 CUP';
+    }
+
+    // Eventos para los campos de entrada
+    amountToSendEl.addEventListener('input', calculate);
+    amountToReceiveEl.addEventListener('input', calculate);
+
+    // Eventos para los nuevos botones de modo
+    sendModeBtn.addEventListener('click', () => setMode('send'));
+    receiveModeBtn.addEventListener('click', () => setMode('receive'));
 
     // Eventos para el modal de configuración
     settingsBtn.addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
         settingsModal.classList.add('flex');
     });
-
     closeModalBtn.addEventListener('click', () => {
         settingsModal.classList.add('hidden');
         settingsModal.classList.remove('flex');
     });
-
     saveSettingsBtn.addEventListener('click', () => {
         saveSettings();
         settingsModal.classList.add('hidden');
         settingsModal.classList.remove('flex');
     });
-    
-    // Cargar la configuración y realizar el cálculo inicial
+
+    // Cargar la configuración y establecer el modo inicial
     loadSettings();
-    calculate();
+    setMode('send');
 });
-          
