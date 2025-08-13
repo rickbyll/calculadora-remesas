@@ -1,437 +1,241 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Stan Service · Calculadora de Remesas EE.UU. → Cuba</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    :root{
-      --stan-blue:#0d6efd; /* Bootstrap primary */
-      --stan-green:#20c997; /* teal */
-      --stan-bg:#f8fafc;
-    }
-    body{background: var(--stan-bg);}
-    .brand-badge{
-      background: linear-gradient(135deg,var(--stan-blue),#58a6ff);
-      color:#fff;border-radius:16px;padding:12px 18px;
-      box-shadow: 0 8px 24px rgba(13,110,253,.25);
-    }
-    .card{
-      border:none;border-radius:18px;
-      box-shadow: 0 10px 30px rgba(2,8,20,.06);
-    }
-    .card-header{
-      background: #fff;border-bottom:1px solid #eef2f7;border-top-left-radius:18px;border-top-right-radius:18px;
-    }
-    .rate-pill{
-      border-radius:999px;background:#eef6ff;color:#0b5ed7;font-weight:600;padding:.25rem .6rem;
-    }
-    .form-range::-webkit-slider-thumb{background: var(--stan-blue);}
-    .btn-primary{border-radius:12px;}
-    .btn-outline-primary{border-radius:12px;}
-    .copyable{cursor:pointer;}
-    .badge-soft{
-      background:#e8fff4;color:#0a7f4f;border:1px solid #bdf0da;border-radius:999px;
-      font-weight:600;
-    }
-    .muted{color:#6b7280;}
-    .footer-note{font-size:.85rem;color:#6b7280;}
-    .sticky-actions{
-      position:sticky; bottom:0; background:#fff; padding:10px; border-top:1px solid #eef2f7; border-bottom-left-radius:18px; border-bottom-right-radius:18px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Remesas a Cuba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 600px;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
-<body>
-  <nav class="py-3">
-    <div class="container d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center gap-3">
-        <div class="brand-badge fw-bold">Stan Service</div>
-        <span class="badge badge-soft">Remesas EE.UU. → Cuba</span>
-      </div>
-      <div class="d-none d-md-flex align-items-center gap-3">
-        <a class="link-primary text-decoration-none" href="#calc">Calculadora</a>
-        <a class="link-primary text-decoration-none" href="#tasas">Tasas</a>
-        <a class="link-primary text-decoration-none" href="#faq">FAQ</a>
-        <a class="btn btn-primary btn-sm" href="#contacto">Contacto</a>
-      </div>
-    </div>
-  </nav>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container bg-white p-8 rounded-2xl shadow-xl w-full">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Calculadora de Remesas a Cuba</h1>
+        <p class="text-center text-gray-600 mb-8">Calcula de forma rápida y sencilla la cantidad a enviar por Zelle.</p>
 
-  <main class="container mb-5" id="calc">
-    <div class="row g-4">
-      <div class="col-12 col-lg-7">
-        <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Calculadora de Remesas</h5>
-            <span class="rate-pill" id="pillTasaResumen">1 USD = 400 CUP</span>
-          </div>
-          <div class="card-body">
-            <!-- Tabs: Envío vs Recepción -->
-            <ul class="nav nav-pills mb-3" id="modeTabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-envio" data-bs-toggle="pill" data-bs-target="#pane-envio" type="button" role="tab">Quiero ENVIAR (USD → Reciben)</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-recepcion" data-bs-toggle="pill" data-bs-target="#pane-recepcion" type="button" role="tab">Quiero que RECIBAN (Necesito enviar)</button>
-              </li>
-            </ul>
-
-            <div class="tab-content">
-              <!-- Modo Envío -->
-              <div class="tab-pane fade show active" id="pane-envio" role="tabpanel" aria-labelledby="tab-envio">
-                <div class="row g-3">
-                  <div class="col-12 col-md-6">
-                    <label class="form-label">Monto a enviar por Zelle (USD)</label>
-                    <input type="number" min="0" step="0.01" class="form-control" id="sendUsd" placeholder="ej. 125">
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label class="form-label">¿Cómo recibirán en Cuba?</label>
-                    <select class="form-select" id="receiveMethodSend">
-                      <option value="CUP_EFECTIVO">CUP en efectivo</option>
-                      <option value="CUP_TRANSFER">CUP por transferencia</option>
-                      <option value="USD_EFECTIVO">USD en efectivo</option>
-                    </select>
-                  </div>
+        <!-- Sección de configuración (oculta por defecto) -->
+        <div id="config-panel" class="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 hidden">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Configuración de Tasas</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="cup-rate" class="block text-sm font-medium text-gray-700">Tasa de cambio (CUP por USD)</label>
+                    <input type="number" id="cup-rate" value="400" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
-
-                <div class="mt-4">
-                  <div class="alert alert-light border d-flex justify-content-between align-items-center">
-                    <div>
-                      <div class="fw-semibold">Comisión por tramo</div>
-                      <div class="small muted">Menos de 100: 10% · 100 a &lt;500: 5% · 500 o más: 3%</div>
-                    </div>
-                    <div class="text-end">
-                      <div class="small muted">Tasa CUP efectivo: <span id="lblRateCash"></span></div>
-                      <div class="small muted">Tasa CUP transferencia: <span id="lblRateTransfer"></span></div>
-                    </div>
-                  </div>
+                <div>
+                    <label for="rate-100" class="block text-sm font-medium text-gray-700">Comisión para montos < $100</label>
+                    <input type="number" id="rate-100" value="10" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
-
-                <div class="mt-3">
-                  <button class="btn btn-primary w-100" id="btnCalcSend">Calcular</button>
+                <div>
+                    <label for="rate-500" class="block text-sm font-medium text-gray-700">Comisión para montos entre $100 y $500</label>
+                    <input type="number" id="rate-500" value="5" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
-
-                <div class="mt-4" id="resultSend" style="display:none;">
-                  <h6 class="mb-3">Resultados</h6>
-                  <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="muted small">Comisión aplicada</div>
-                          <div class="h5 mb-0"><span id="sendFeeRate">—</span>% (<span id="sendFeeUsd">—</span> USD)</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="muted small">USD netos después de comisión</div>
-                          <div class="h5 mb-0"><span id="netUsd">—</span> USD</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="card">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                          <div>
-                            <div class="muted small">Monto que reciben</div>
-                            <div class="h4 mb-0"><span id="receiveAmount">—</span> <span id="receiveCurrency">—</span></div>
-                          </div>
-                          <button class="btn btn-outline-primary btn-sm" id="btnCopyReceive">Copiar</button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="alert alert-info">
-                        <div class="small">Efectivo CUP y Transferencia CUP usan tasas configurables abajo en <a href="#tasas" class="alert-link">Tasas & Configuración</a>. USD en efectivo no convierte: reciben los USD netos.</div>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                    <label for="rate-plus500" class="block text-sm font-medium text-gray-700">Comisión para montos > $500</label>
+                    <input type="number" id="rate-plus500" value="3" step="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
                 </div>
-              </div>
-
-              <!-- Modo Recepción -->
-              <div class="tab-pane fade" id="pane-recepcion" role="tabpanel" aria-labelledby="tab-recepcion">
-                <div class="row g-3">
-                  <div class="col-12 col-md-6">
-                    <label class="form-label">Quiero que reciban</label>
-                    <input type="number" min="0" step="0.01" class="form-control" id="wantReceive" placeholder="ej. 5000">
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label class="form-label">Moneda de recepción</label>
-                    <select class="form-select" id="receiveMethodWant">
-                      <option value="CUP_EFECTIVO">CUP en efectivo</option>
-                      <option value="CUP_TRANSFER">CUP por transferencia</option>
-                      <option value="USD_EFECTIVO">USD en efectivo</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="mt-4">
-                  <div class="alert alert-light border">
-                    <div class="fw-semibold">Se calculará cuánto debes enviar por Zelle (respetando los tramos de comisión).</div>
-                    <div class="small muted">La comisión se aplica sobre lo que envías. El cálculo invierte el tramo correspondiente (10%, 5%, 3%).</div>
-                  </div>
-                </div>
-
-                <div class="mt-3">
-                  <button class="btn btn-primary w-100" id="btnCalcWant">Calcular</button>
-                </div>
-
-                <div class="mt-4" id="resultWant" style="display:none;">
-                  <h6 class="mb-3">Resultados</h6>
-                  <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="muted small">Debes enviar por Zelle</div>
-                          <div class="h4 mb-0"><span id="needToSendUsd">—</span> USD</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="muted small">Comisión aplicada</div>
-                          <div class="h5 mb-0"><span id="wantFeeRate">—</span>% (<span id="wantFeeUsd">—</span> USD)</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="alert alert-success">
-                        <div class="small">Verifica que el monto calculado cae en el tramo mostrado. Si cambia el tramo al ajustar cifras, el sistema lo recalcula automáticamente.</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div><!-- /pane-recepcion -->
-            </div><!-- /tab-content -->
-          </div>
-
-          <div class="sticky-actions d-flex gap-2">
-            <a class="btn btn-outline-primary w-50" href="#tasas">Tasas & Configuración</a>
-            <a class="btn btn-primary w-50" href="#contacto">Contactar a Stan Service</a>
-          </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500">
+                Estas comisiones se aplican sobre la cantidad total en USD.
+            </p>
         </div>
-      </div>
 
-      <!-- Panel lateral de confianza -->
-      <div class="col-12 col-lg-5">
-        <div class="card h-100">
-          <div class="card-header">
-            <h6 class="mb-0">Transparencia Stan Service</h6>
-          </div>
-          <div class="card-body">
-            <ul class="list-unstyled mb-4">
-              <li class="d-flex align-items-start mb-3">
-                <span class="badge bg-success me-2">1</span>
-                <div><strong>Con tu dinero no hay misterios 🤫</strong><br><span class="muted">Comisión clara por tramos, sin letras pequeñas.</span></div>
-              </li>
-              <li class="d-flex align-items-start mb-3">
-                <span class="badge bg-success me-2">2</span>
-                <div><strong>Tasas visibles y editables</strong><br><span class="muted">Actualiza la tasa CUP cuando lo necesites (se guarda en tu navegador).</span></div>
-              </li>
-              <li class="d-flex align-items-start mb-3">
-                <span class="badge bg-success me-2">3</span>
-                <div><strong>Entrega y comunicación directa</strong><br><span class="muted">Atención cercana y soporte por WhatsApp y Facebook.</span></div>
-              </li>
-            </ul>
-            <div class="footer-note">
-              Nota: Esta calculadora es informativa. La disponibilidad de efectivo/transferencia puede variar. Confirma con nosotros antes de realizar el envío.
-            </div>
-          </div>
+        <div class="mb-6 flex justify-center">
+            <button id="toggle-config" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-200">
+                Mostrar/Ocultar Configuración
+            </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Tasas & Configuración -->
-    <div class="row g-4 mt-4" id="tasas">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Tasas & Configuración</h5>
-            <span class="muted small">Se guarda localmente en tu navegador</span>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <div class="col-12 col-md-4">
-                <label class="form-label">Tasa CUP efectivo (CUP por 1 USD)</label>
-                <input type="number" id="rateCash" class="form-control" min="0" step="0.01" value="400">
-              </div>
-              <div class="col-12 col-md-4">
-                <label class="form-label">Tasa CUP transferencia (CUP por 1 USD)</label>
-                <input type="number" id="rateTransfer" class="form-control" min="0" step="0.01" value="400">
-              </div>
-              <div class="col-12 col-md-4">
-                <label class="form-label">Mostrar redondeo</label>
-                <select class="form-select" id="rounding">
-                  <option value="0">Sin redondeo</option>
-                  <option value="2" selected>2 decimales</option>
-                  <option value="0int">Entero (CUP)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="row g-3 mt-2">
-              <div class="col-12 col-md-3">
-                <label class="form-label">Tramo 1 (%) &lt; 100 USD</label>
-                <input type="number" id="feeTier1" class="form-control" min="0" step="0.01" value="10">
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label">Tramo 2 (%) 100–&lt;500 USD</label>
-                <input type="number" id="feeTier2" class="form-control" min="0" step="0.01" value="5">
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label">Tramo 3 (%) ≥ 500 USD</label>
-                <input type="number" id="feeTier3" class="form-control" min="0" step="0.01" value="3">
-              </div>
-              <div class="col-12 col-md-3 d-flex align-items-end">
-                <button class="btn btn-outline-primary w-100" id="btnSaveConfig">Guardar configuración</button>
-              </div>
-            </div>
-
-            <div class="mt-3 d-flex gap-2">
-              <button class="btn btn-light" id="btnResetConfig">Restablecer valores por defecto</button>
-              <span class="muted small align-self-center" id="saveStatus">—</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Contacto -->
-    <div class="row g-4 mt-4" id="contacto">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header">
-            <h5 class="mb-0">Contacto · Stan Service</h5>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <div class="col-12 col-md-6">
-                <div class="p-3 border rounded-3">
-                  <div class="fw-semibold mb-1">WhatsApp (grupo/comunidad)</div>
-                  <div class="muted">Mantente al día con precios, descuentos y encargos.</div>
-                  <a href="#" class="btn btn-success mt-2 disabled">Abrir WhatsApp</a>
+        <!-- Opciones de cálculo -->
+        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Calcular Remesa</h2>
+            <div class="space-y-6">
+                <!-- Calcular USD a recibir -->
+                <div>
+                    <label for="zelle-amount" class="block text-sm font-medium text-gray-700">Cantidad a enviar por Zelle (USD)</label>
+                    <input type="number" id="zelle-amount" placeholder="Ej: 200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
+                    <p class="text-sm text-gray-500 mt-1">El monto que pagas en EE.UU.</p>
                 </div>
-              </div>
-              <div class="col-12 col-md-6">
-                <div class="p-3 border rounded-3">
-                  <div class="fw-semibold mb-1">Facebook</div>
-                  <div class="muted">Ventas y atención directa.</div>
-                  <a href="#" class="btn btn-primary mt-2 disabled">Abrir Facebook</a>
+                <div class="text-center text-gray-500 font-semibold my-4">O</div>
+                <!-- Calcular Zelle a pagar -->
+                <div>
+                    <label for="receive-amount" class="block text-sm font-medium text-gray-700">Cantidad que desea que reciban en Cuba (USD)</label>
+                    <input type="number" id="receive-amount" placeholder="Ej: 180" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
+                    <p class="text-sm text-gray-500 mt-1">El monto final que quieres que llegue.</p>
                 </div>
-              </div>
             </div>
-            <div class="footer-note mt-3">Añade tus enlaces reales cuando publiques.</div>
-          </div>
         </div>
-      </div>
+
+        <!-- Sección de resultados -->
+        <div class="mt-8 bg-indigo-50 p-6 rounded-2xl border border-indigo-200">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-800">Resultados del Cálculo</h2>
+            <div id="results" class="space-y-4">
+                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                    <span class="text-sm font-medium text-gray-700">Cantidad a pagar por Zelle:</span>
+                    <span id="result-zelle" class="font-bold text-lg text-indigo-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                    <span class="text-sm font-medium text-gray-700">Comisión aplicada:</span>
+                    <span id="result-fee" class="font-bold text-lg text-red-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                    <span class="text-sm font-medium text-gray-700">Cantidad que recibirá en Cuba:</span>
+                    <span id="result-receive-usd" class="font-bold text-lg text-green-600">$0.00 USD</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                    <span class="text-sm font-medium text-gray-700">Cantidad en CUP (efectivo/transferencia):</span>
+                    <span id="result-cup" class="font-bold text-lg text-green-600">0.00 CUP</span>
+                </div>
+            </div>
+            <div id="message-box" class="mt-4 text-center text-sm font-medium text-red-600 hidden"></div>
+        </div>
     </div>
 
-  </main>
+    <script>
+        // Función para obtener los valores de las tasas desde los inputs
+        function getRates() {
+            return {
+                cup: parseFloat(document.getElementById('cup-rate').value),
+                rate100: parseFloat(document.getElementById('rate-100').value) / 100,
+                rate500: parseFloat(document.getElementById('rate-500').value) / 100,
+                ratePlus500: parseFloat(document.getElementById('rate-plus500').value) / 100
+            };
+        }
 
-  <footer class="py-4">
-    <div class="container text-center muted small">
-      © <span id="year"></span> Stan Service. Todos los derechos reservados.
-    </div>
-  </footer>
+        // Función para calcular la comisión
+        function calculateFee(amount, rates) {
+            if (amount < 100) {
+                return amount * rates.rate100;
+            } else if (amount >= 100 && amount <= 500) {
+                return amount * rates.rate500;
+            } else {
+                return amount * rates.ratePlus500;
+            }
+        }
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // ---------- Utils de almacenamiento ----------
-    const KEY_CFG = 'stan_calc_cfg_v1';
-    function loadCfg(){
-      try{
-        const raw = localStorage.getItem(KEY_CFG);
-        if(!raw) return null;
-        return JSON.parse(raw);
-      }catch(e){return null;}
-    }
-    function saveCfg(cfg){
-      localStorage.setItem(KEY_CFG, JSON.stringify(cfg));
-    }
-    function defaults(){
-      return {
-        rateCash: 400,
-        rateTransfer: 400,
-        fee1: 10, // <100
-        fee2: 5,  // 100-<500
-        fee3: 3,  // >=500
-        rounding: '2'
-      };
-    }
-    function applyCfgToUI(cfg){
-      document.getElementById('rateCash').value = cfg.rateCash;
-      document.getElementById('rateTransfer').value = cfg.rateTransfer;
-      document.getElementById('feeTier1').value = cfg.fee1;
-      document.getElementById('feeTier2').value = cfg.fee2;
-      document.getElementById('feeTier3').value = cfg.fee3;
-      document.getElementById('rounding').value = cfg.rounding;
-      document.getElementById('lblRateCash').textContent = Number(cfg.rateCash).toLocaleString('es-ES');
-      document.getElementById('lblRateTransfer').textContent = Number(cfg.rateTransfer).toLocaleString('es-ES');
-      document.getElementById('pillTasaResumen').textContent = `1 USD = ${cfg.rateCash}–${cfg.rateTransfer} CUP`;
-    }
-    function uiCfg(){
-      return {
-        rateCash: parseFloat(document.getElementById('rateCash').value || '0'),
-        rateTransfer: parseFloat(document.getElementById('rateTransfer').value || '0'),
-        fee1: parseFloat(document.getElementById('feeTier1').value || '0'),
-        fee2: parseFloat(document.getElementById('feeTier2').value || '0'),
-        fee3: parseFloat(document.getElementById('feeTier3').value || '0'),
-        rounding: document.getElementById('rounding').value
-      };
-    }
+        // Función para calcular la cantidad a pagar por Zelle
+        function calculateZelleAmount(receiveAmount, rates) {
+            let zelleAmount = receiveAmount;
+            let fee = 0;
+            let iterations = 0;
+            const maxIterations = 10;
+            const tolerance = 0.01;
 
-    // ---------- Lógica de comisiones ----------
-    function feeRate(amount, cfg){
-      if(amount < 100) return cfg.fee1/100;
-      if(amount < 500) return cfg.fee2/100;
-      return cfg.fee3/100;
-    }
+            // Bucle para ajustar el monto de Zelle de forma iterativa
+            while (iterations < maxIterations) {
+                fee = calculateFee(zelleAmount, rates);
+                const newZelleAmount = (receiveAmount + fee);
+                if (Math.abs(newZelleAmount - zelleAmount) < tolerance) {
+                    zelleAmount = newZelleAmount;
+                    break;
+                }
+                zelleAmount = newZelleAmount;
+                iterations++;
+            }
+            return zelleAmount;
+        }
 
-    // Redondeo según preferencia
-    function fmt(x, currency, cfg){
-      if(cfg.rounding === '0int' && currency === 'CUP'){
-        return Math.round(x).toLocaleString('es-ES');
-      }
-      if(cfg.rounding === '2'){
-        return Number(x).toFixed(2).toLocaleString('es-ES');
-      }
-      // sin redondeo
-      return Number(x).toLocaleString('es-ES', {maximumFractionDigits:6});
-    }
+        // Función para actualizar la interfaz con los resultados
+        function updateResults(zelleAmount, fee, receiveAmount, rates) {
+            document.getElementById('result-zelle').innerText = `$${zelleAmount.toFixed(2)}`;
+            document.getElementById('result-fee').innerText = `$${fee.toFixed(2)}`;
+            document.getElementById('result-receive-usd').innerText = `$${receiveAmount.toFixed(2)} USD`;
+            document.getElementById('result-cup').innerText = `${(receiveAmount * rates.cup).toFixed(2)} CUP`;
+        }
 
-    // ---------- Cálculos: ENVIAR (USD -> Reciben) ----------
-    function calcSend(){
-      const cfg = loadCfg() || defaults();
-      const sendUsd = parseFloat(document.getElementById('sendUsd').value || '0');
-      const method = document.getElementById('receiveMethodSend').value;
+        // Escuchar cambios en la cantidad de Zelle
+        document.getElementById('zelle-amount').addEventListener('input', (event) => {
+            const zelleInput = event.target;
+            const receiveInput = document.getElementById('receive-amount');
+            const rates = getRates();
+            const zelleAmount = parseFloat(zelleInput.value);
 
-      if(sendUsd <= 0){ alert('Ingresa un monto a enviar mayor que 0'); return; }
+            if (isNaN(zelleAmount) || zelleAmount <= 0) {
+                clearResults();
+                return;
+            }
 
-      const fr = feeRate(sendUsd, cfg);
-      const feeUsd = sendUsd * fr;
-      const netUsd = sendUsd - feeUsd;
+            // Deshabilitar el otro campo mientras se usa este
+            receiveInput.value = '';
+            
+            const fee = calculateFee(zelleAmount, rates);
+            const receiveAmount = zelleAmount - fee;
+            updateResults(zelleAmount, fee, receiveAmount, rates);
+        });
 
-      let receive = 0, currency = '';
-      if(method === 'USD_EFECTIVO'){
-        receive = netUsd;
-        currency = 'USD';
-      }else{
-        const rate = (method === 'CUP_EFECTIVO') ? cfg.rateCash : cfg.rateTransfer;
-        receive = netUsd * rate;
-        currency = 'CUP';
-      }
+        // Escuchar cambios en la cantidad a recibir
+        document.getElementById('receive-amount').addEventListener('input', (event) => {
+            const receiveInput = event.target;
+            const zelleInput = document.getElementById('zelle-amount');
+            const rates = getRates();
+            const receiveAmount = parseFloat(receiveInput.value);
 
-      // Render
-      document.getElementById('sendFeeRate').textContent = (fr*100).toFixed(2);
-      document.getElementById('sendFeeUsd').textContent = fmt(feeUsd,'USD',cfg);
-      document.getElementById('netUsd').textContent = fmt(netUsd,'USD',cfg);
-      document.getElementById('receiveAmount').textContent = fmt(receive,currency,cfg);
-      document.getElementById('receiveCurrency').textContent = currency;
-      document.get
+            if (isNaN(receiveAmount) || receiveAmount <= 0) {
+                clearResults();
+                return;
+            }
+
+            // Deshabilitar el otro campo mientras se usa este
+            zelleInput.value = '';
+
+            const zelleAmount = calculateZelleAmount(receiveAmount, rates);
+            const fee = calculateFee(zelleAmount, rates);
+            updateResults(zelleAmount, fee, receiveAmount, rates);
+        });
+        
+        // Escuchar cambios en las tasas de configuración
+        const configInputs = document.querySelectorAll('#config-panel input[type="number"]');
+        configInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const zelleAmount = parseFloat(document.getElementById('zelle-amount').value);
+                const receiveAmount = parseFloat(document.getElementById('receive-amount').value);
+                const rates = getRates();
+
+                if (!isNaN(zelleAmount) && zelleAmount > 0) {
+                    const fee = calculateFee(zelleAmount, rates);
+                    const newReceiveAmount = zelleAmount - fee;
+                    updateResults(zelleAmount, fee, newReceiveAmount, rates);
+                } else if (!isNaN(receiveAmount) && receiveAmount > 0) {
+                    const newZelleAmount = calculateZelleAmount(receiveAmount, rates);
+                    const fee = calculateFee(newZelleAmount, rates);
+                    updateResults(newZelleAmount, fee, receiveAmount, rates);
+                } else {
+                    clearResults();
+                }
+            });
+        });
+
+        // Limpiar los resultados
+        function clearResults() {
+            document.getElementById('result-zelle').innerText = '$0.00';
+            document.getElementById('result-fee').innerText = '$0.00';
+            document.getElementById('result-receive-usd').innerText = '$0.00 USD';
+            document.getElementById('result-cup').innerText = '0.00 CUP';
+        }
+
+        // Funcionalidad para mostrar/ocultar el panel de configuración
+        document.getElementById('toggle-config').addEventListener('click', () => {
+            const configPanel = document.getElementById('config-panel');
+            configPanel.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
+
