@@ -63,36 +63,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función principal de cálculo
-    function calculate() {
-        if (currentMode === 'send') {
-            const amountToSend = parseFloat(amountToSendEl.value);
-            if (isNaN(amountToSend) || amountToSend <= 0) {
-                amountToReceiveEl.value = '';
-                cupResultEl.textContent = '0.00 CUP';
-                return;
-            }
-
-            // Cálculo para "enviar"
-            const feePercentage = getFeePercentage(amountToSend / 1.05); // Se usa una estimación inicial para el cálculo
-            const amountToReceive = amountToSend / (1 + feePercentage);
-
-            amountToReceiveEl.value = amountToReceive.toFixed(2);
-            cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
-
-        } else if (currentMode === 'receive') {
-            const amountToReceive = parseFloat(amountToReceiveEl.value);
-            if (isNaN(amountToReceive) || amountToReceive <= 0) {
-                amountToSendEl.value = '';
-                cupResultEl.textContent = '0.00 CUP';
-                return;
-            }
-            // Cálculo para "recibir"
-            const feePercentage = getFeePercentage(amountToReceive);
-            const amountToSend = amountToReceive * (1 + feePercentage);
-            amountToSendEl.value = amountToSend.toFixed(2);
-            cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
+function calculate() {
+    if (currentMode === 'send') {
+        const amountToSend = parseFloat(amountToSendEl.value);
+        if (isNaN(amountToSend) || amountToSend <= 0) {
+            amountToReceiveEl.value = '';
+            cupResultEl.textContent = '0.00 CUP';
+            return;
         }
+
+        // Corrección del cálculo para "enviar"
+        let amountToReceive;
+        // Se asume la tarifa del 5% como punto de partida para el cálculo
+        // Esto simplifica la lógica y la hace más precisa.
+        const feePercentage = getFeePercentage(amountToSend / 1.05);
+        amountToReceive = amountToSend / (1 + feePercentage);
+
+        // Se verifica si el monto calculado cae en un rango de tarifa diferente
+        const actualFeePercentage = getFeePercentage(amountToReceive);
+        if (actualFeePercentage !== feePercentage) {
+            amountToReceive = amountToSend / (1 + actualFeePercentage);
+        }
+
+        amountToReceiveEl.value = amountToReceive.toFixed(2);
+        cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
+
+    } else if (currentMode === 'receive') {
+        const amountToReceive = parseFloat(amountToReceiveEl.value);
+        if (isNaN(amountToReceive) || amountToReceive <= 0) {
+            amountToSendEl.value = '';
+            cupResultEl.textContent = '0.00 CUP';
+            return;
+        }
+        // Cálculo para "recibir"
+        const feePercentage = getFeePercentage(amountToReceive);
+        const amountToSend = amountToReceive * (1 + feePercentage);
+        amountToSendEl.value = amountToSend.toFixed(2);
+        cupResultEl.textContent = `${(amountToReceive * currentRates.usdToCup).toFixed(2)} CUP`;
     }
+}
+    
 
     // Función para cambiar el modo de entrada
     function setMode(mode) {
