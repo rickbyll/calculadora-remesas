@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tarifas predeterminadas
     const defaultRates = {
-        usdToCup: 240,
+        usdToCup: 400,
         rate100: 10,
         rate500: 5,
         rate500Plus: 3
